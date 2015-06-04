@@ -1,6 +1,11 @@
 # GraphiteClient
-Docker image for graphite client for monitoring of dockers and system
+Docker image for graphite client for monitoring of the machine and dockers running on that machine 
 
-docker run -i  -e EP_HOST=graphite.host -e EP_PORT=graphiteport -e ENV=PREFIX -e NODE=HOSTNAME -v /proc:/host_proc:ro -v /var/run/docker.sock:/var/run/docker.sock:ro dockerstat
+
+
+docker run -i  -e EP_HOST=graphite.host -e EP_PORT=graphiteport -e ENV=PREFIX -e NODE=HOSTNAME -v /proc:/host_proc:ro -v /var/run/docker.sock:/var/run/docker.sock:ro  akumar261089/dockerstat:1.0
+
+
+
 
 
