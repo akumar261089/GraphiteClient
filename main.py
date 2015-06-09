@@ -42,9 +42,15 @@ def get_dockerdata(ENV,NODE):
 #        print instance
         cmd = "echo 'GET /containers" + instance  + "/stats HTTP/1.0\\r\\n'  | nc -U /var/run/docker.sock | head -5 | tail -1"
 #        print cmd
-        out = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
+        try:
+          out = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
 #        print out
-        stat_data[instance] = json.loads(out)
+          stat_data[instance] = json.loads(out)
+        except :
+  #        print out
+ #         print "exception"
+          pass 
+  #      print "exception handled"
         memory_limit = float(stat_data[instance]["memory_stats"]["limit"])
         memory_usage = float(stat_data[instance]["memory_stats"]["usage"])
         memory_percent = (memory_usage / memory_limit)*100.0
