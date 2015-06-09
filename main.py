@@ -10,7 +10,7 @@ import getopt
 import docker
 import pprint
 
-DELAY = 60  # secs
+DELAY = 15  # secs
 previous_cpu = {}
 previous_system_cpu = {}
 cpu_usage_percent = 0.0
@@ -46,27 +46,27 @@ def get_dockerdata(ENV,NODE):
           out = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
 #        print out
           stat_data[instance] = json.loads(out)
-        except :
+      
   #        print out
  #         print "exception"
-          pass 
+     
   #      print "exception handled"
-        memory_limit = float(stat_data[instance]["memory_stats"]["limit"])
-        memory_usage = float(stat_data[instance]["memory_stats"]["usage"])
-        memory_percent = (memory_usage / memory_limit)*100.0
-        if not(instance in previous_cpu):
+          memory_limit = float(stat_data[instance]["memory_stats"]["limit"])
+          memory_usage = float(stat_data[instance]["memory_stats"]["usage"])
+          memory_percent = (memory_usage / memory_limit)*100.0
+          if not(instance in previous_cpu):
             cpu_usage_percent = 0.0
-        else:
+          else:
             cpu_delta = float( stat_data[instance]["cpu_stats"]["cpu_usage"]["total_usage"] - previous_cpu[instance])
             system_delta = float(stat_data[instance]["cpu_stats"]["system_cpu_usage"] - previous_system_cpu[instance])
             cpu_usage_percent = float(cpu_delta / system_delta) * float(len(stat_data[instance]["cpu_stats"]["cpu_usage"]["percpu_usage"])) * 100.0
 
-        network_rx = float(stat_data[instance]["network"]["rx_bytes"])
-        network_tx = float(stat_data[instance]["network"]["tx_bytes"])
+          network_rx = float(stat_data[instance]["network"]["rx_bytes"])
+          network_tx = float(stat_data[instance]["network"]["tx_bytes"])
 #        blkio_stats = stat_data[instance]["blkio_stats"]["io_serviced_recursive"][0]["value"]
-        previous_cpu[instance] = float(stat_data[instance]["cpu_stats"]["cpu_usage"]["total_usage"])
-        previous_system_cpu[instance] = float(stat_data[instance]["cpu_stats"]["system_cpu_usage"])
-        lines_temp = [
+          previous_cpu[instance] = float(stat_data[instance]["cpu_stats"]["cpu_usage"]["total_usage"])
+          previous_system_cpu[instance] = float(stat_data[instance]["cpu_stats"]["system_cpu_usage"])
+          lines_temp = [
 
             '%s.docker.server.%s.number-of-dockers %d %d' % (ENV, NODE, number_of_docker, timestamp),
             '%s.docker.server.%s.%s.memory-usage %d %d' % (ENV, NODE, instance, memory_usage, timestamp),
@@ -77,7 +77,9 @@ def get_dockerdata(ENV,NODE):
             '%s.docker.server.%s.%s.network-tx-bytes %d %d' % (ENV, NODE, instance, network_tx, timestamp),
 #            '%s.docker.server.%s.%s.blkio_stats %d %d' % (ENV, NODE, instance, blkio_stats, timestamp)
             ]
-        lines.extend(lines_temp)
+          lines.extend(lines_temp)
+        except:
+          pass
 
     return lines
 
