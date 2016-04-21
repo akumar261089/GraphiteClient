@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import traceback
 import platform
 import socket
 import time
@@ -17,7 +17,7 @@ cpu_usage_percent = 0.0
 
 
 def send_msg(message, CARBON_SERVER, CARBON_PORT):
-    print 'sending message:\n%s' % message
+  #  print 'sending message:\n%s' % message
     sock = socket.socket()
     sock.connect((CARBON_SERVER, CARBON_PORT))
     sock.sendall(message)
@@ -40,7 +40,7 @@ def get_dockerdata(ENV,NODE):
 #    print dockers_list
     for instance in dockers_list:
 #        print instance
-        cmd = "echo 'GET /containers" + instance  + "/stats HTTP/1.0\\r\\n'  | nc -U /var/run/docker.sock | head -5 | tail -1"
+        cmd = "echo 'GET /containers" + instance  + "/stats HTTP/1.1\\r\\n'  | nc -U -q 1 /var/run/docker.sock | head -8 | tail -1"
 #        print cmd
         try:
           out = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
@@ -61,8 +61,8 @@ def get_dockerdata(ENV,NODE):
             system_delta = float(stat_data[instance]["cpu_stats"]["system_cpu_usage"] - previous_system_cpu[instance])
             cpu_usage_percent = float(cpu_delta / system_delta) * float(len(stat_data[instance]["cpu_stats"]["cpu_usage"]["percpu_usage"])) * 100.0
 
-          network_rx = float(stat_data[instance]["network"]["rx_bytes"])
-          network_tx = float(stat_data[instance]["network"]["tx_bytes"])
+          network_rx = float(stat_data[instance]["networks"]["eth0"]["rx_bytes"])
+          network_tx = float(stat_data[instance]["networks"]["eth0"]["tx_bytes"])
 #        blkio_stats = stat_data[instance]["blkio_stats"]["io_serviced_recursive"][0]["value"]
           previous_cpu[instance] = float(stat_data[instance]["cpu_stats"]["cpu_usage"]["total_usage"])
           previous_system_cpu[instance] = float(stat_data[instance]["cpu_stats"]["system_cpu_usage"])
@@ -80,7 +80,7 @@ def get_dockerdata(ENV,NODE):
           lines.extend(lines_temp)
         except:
           pass
-
+    traceback.print_exc()
     return lines
 
 def main(argv):
